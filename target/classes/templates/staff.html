@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>普通员工工作页面</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            height: 100vh;
+            background-color: #343a40;
+            padding-top: 20px;
+        }
+        .sidebar .nav-link {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #495057;
+        }
+        .sidebar .nav-link.active {
+            background-color: #0d6efd;
+        }
+        .main-content {
+            padding: 20px;
+        }
+        .dashboard-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        .task-item {
+            border-left: 4px solid #0d6efd;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        .task-item.completed {
+            border-left-color: #198754;
+        }
+        .task-item.upcoming {
+            border-left-color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <nav class="col-md-2 d-none d-md-block sidebar">
+                <div class="position-sticky">
+                    <div class="text-center mb-4">
+                        <img src="https://via.placeholder.com/100" class="rounded-circle" alt="用户头像">
+                        <h6 class="text-white mt-2" th:text="${user.name}">员工姓名</h6>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#dashboard">
+                                <i class="fas fa-home me-2"></i>工作概览
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#schedule">
+                                <i class="fas fa-calendar-alt me-2"></i>工作安排
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#tasks">
+                                <i class="fas fa-tasks me-2"></i>任务列表
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#leave">
+                                <i class="fas fa-calendar-times me-2"></i>请假申请
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#attendance">
+                                <i class="fas fa-user-clock me-2"></i>考勤记录
+                            </a>
+                        </li>
+                        <li class="nav-item mt-5">
+                            <a class="nav-link" href="/logout">
+                                <i class="fas fa-sign-out-alt me-2"></i>退出登录
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- 主要内容区域 -->
+            <main class="col-md-10 ms-sm-auto px-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">员工工作台</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary">签到</button>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+                            <i class="fas fa-calendar"></i>
+                            今日
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 状态卡片 -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card dashboard-card bg-primary text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">今日任务</h5>
+                                <h2 class="card-text">8</h2>
+                                <p class="mb-0"><i class="fas fa-check"></i> 已完成 5 项</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card dashboard-card bg-success text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">本月考勤</h5>
+                                <h2 class="card-text">100%</h2>
+                                <p class="mb-0"><i class="fas fa-calendar-check"></i> 全勤</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card dashboard-card bg-warning text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">待办事项</h5>
+                                <h2 class="card-text">3</h2>
+                                <p class="mb-0"><i class="fas fa-clock"></i> 需要处理</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card dashboard-card bg-info text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">剩余假期</h5>
+                                <h2 class="card-text">8天</h2>
+                                <p class="mb-0"><i class="fas fa-calendar-alt"></i> 本年度可用</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 今日工作安排 -->
+                <div class="card dashboard-card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">今日工作安排</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>时间段</th>
+                                        <th>工作内容</th>
+                                        <th>地点</th>
+                                        <th>状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>08:30 - 10:00</td>
+                                        <td>前台接待</td>
+                                        <td>大堂前台</td>
+                                        <td><span class="badge bg-success">已完成</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>10:00 - 12:00</td>
+                                        <td>电话预约服务</td>
+                                        <td>预约中心</td>
+                                        <td><span class="badge bg-success">已完成</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>13:30 - 15:30</td>
+                                        <td>客户回访</td>
+                                        <td>客服中心</td>
+                                        <td><span class="badge bg-success">已完成</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>15:30 - 17:30</td>
+                                        <td>资料整理</td>
+                                        <td>办公室</td>
+                                        <td><span class="badge bg-warning">进行中</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务列表 -->
+                <div class="card dashboard-card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">任务列表</h5>
+                        <div class="mt-3">
+                            <div class="task-item completed">
+                                <div class="d-flex justify-content-between">
+                                    <h6>整理客户反馈表</h6>
+                                    <span class="badge bg-success">已完成</span>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted">
+                                    <span><i class="fas fa-clock me-1"></i> 截止日期: 今天</span>
+                                    <span><i class="fas fa-user me-1"></i> 分配人: 李经理</span>
+                                </div>
+                            </div>
+                            <div class="task-item completed">
+                                <div class="d-flex justify-content-between">
+                                    <h6>更新客户联系方式</h6>
+                                    <span class="badge bg-success">已完成</span>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted">
+                                    <span><i class="fas fa-clock me-1"></i> 截止日期: 今天</span>
+                                    <span><i class="fas fa-user me-1"></i> 分配人: 李经理</span>
+                                </div>
+                            </div>
+                            <div class="task-item upcoming">
+                                <div class="d-flex justify-content-between">
+                                    <h6>准备周报表</h6>
+                                    <span class="badge bg-warning">进行中</span>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted">
+                                    <span><i class="fas fa-clock me-1"></i> 截止日期: 明天</span>
+                                    <span><i class="fas fa-user me-1"></i> 分配人: 李经理</span>
+                                </div>
+                            </div>
+                            <div class="task-item">
+                                <div class="d-flex justify-content-between">
+                                    <h6>预约系统培训</h6>
+                                    <span class="badge bg-secondary">待开始</span>
+                                </div>
+                                <div class="d-flex justify-content-between text-muted">
+                                    <span><i class="fas fa-clock me-1"></i> 截止日期: 后天</span>
+                                    <span><i class="fas fa-user me-1"></i> 分配人: 张经理</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 请假申请 -->
+                <div class="card dashboard-card mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title">请假申请</h5>
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#leaveModal">
+                                <i class="fas fa-plus"></i> 新增申请
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>申请日期</th>
+                                        <th>请假类型</th>
+                                        <th>开始日期</th>
+                                        <th>结束日期</th>
+                                        <th>天数</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2025-05-15</td>
+                                        <td>事假</td>
+                                        <td>2025-05-20</td>
+                                        <td>2025-05-20</td>
+                                        <td>1</td>
+                                        <td><span class="badge bg-warning">待审批</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-danger">撤销</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2025-04-10</td>
+                                        <td>病假</td>
+                                        <td>2025-04-12</td>
+                                        <td>2025-04-13</td>
+                                        <td>2</td>
+                                        <td><span class="badge bg-success">已批准</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-secondary">查看</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2025-03-10</td>
+                                        <td>年假</td>
+                                        <td>2025-03-15</td>
+                                        <td>2025-03-16</td>
+                                        <td>2</td>
+                                        <td><span class="badge bg-danger">被拒绝</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-secondary">查看</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 考勤记录 -->
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <h5 class="card-title">本月考勤记录</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>日期</th>
+                                        <th>签到时间</th>
+                                        <th>签退时间</th>
+                                        <th>工时</th>
+                                        <th>状态</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>2025-05-28</td>
+                                        <td>08:25</td>
+                                        <td>17:35</td>
+                                        <td>9小时</td>
+                                        <td><span class="badge bg-success">正常</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2025-05-27</td>
+                                        <td>08:30</td>
+                                        <td>17:30</td>
+                                        <td>9小时</td>
+                                        <td><span class="badge bg-success">正常</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2025-05-26</td>
+                                        <td>08:15</td>
+                                        <td>17:40</td>
+                                        <td>9小时25分</td>
+                                        <td><span class="badge bg-success">正常</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>2025-05-25</td>
+                                        <td>08:45</td>
+                                        <td>17:30</td>
+                                        <td>8小时45分</td>
+                                        <td><span class="badge bg-warning">迟到</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 请假申请模态框 -->
+    <div class="modal fade" id="leaveModal" tabindex="-1" aria-labelledby="leaveModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="leaveModalLabel">请假申请</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="leaveType" class="form-label">请假类型</label>
+                            <select class="form-select" id="leaveType" required>
+                                <option value="">请选择...</option>
+                                <option value="annual">年假</option>
+                                <option value="sick">病假</option>
+                                <option value="personal">事假</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="startDate" class="form-label">开始日期</label>
+                            <input type="date" class="form-control" id="startDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="endDate" class="form-label">结束日期</label>
+                            <input type="date" class="form-control" id="endDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">请假原因</label>
+                            <textarea class="form-control" id="reason" rows="3" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary">提交申请</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 侧边栏导航功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.sidebar .nav-link');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (!this.getAttribute('href').startsWith('/')) {
+                        e.preventDefault();
+                        
+                        // 移除所有active类
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        
+                        // 给当前点击的链接添加active类
+                        this.classList.add('active');
+                        
+                        // 获取目标内容区域的ID
+                        const targetId = this.getAttribute('href');
+                        
+                        // 如果是锚点链接，滚动到目标位置
+                        if (targetId.startsWith('#')) {
+                            const targetElement = document.querySelector(targetId);
+                            if (targetElement) {
+                                targetElement.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

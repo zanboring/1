@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大堂经理管理页面</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            height: 100vh;
+            background-color: #343a40;
+            padding-top: 20px;
+        }
+        .sidebar .nav-link {
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .sidebar .nav-link:hover {
+            background-color: #495057;
+        }
+        .sidebar .nav-link.active {
+            background-color: #0d6efd;
+        }
+        .main-content {
+            padding: 20px;
+        }
+        .dashboard-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- 侧边栏 -->
+            <nav class="col-md-2 d-none d-md-block sidebar">
+                <div class="position-sticky">
+                    <div class="text-center mb-4">
+                        <img src="https://via.placeholder.com/100" class="rounded-circle" alt="用户头像">
+                        <h6 class="text-white mt-2" th:text="${user.name}">大堂经理</h6>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#dashboard">
+                                <i class="fas fa-home me-2"></i>仪表盘
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#schedule">
+                                <i class="fas fa-calendar-alt me-2"></i>技工排班
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#performance">
+                                <i class="fas fa-chart-line me-2"></i>绩效管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#reminder">
+                                <i class="fas fa-bell me-2"></i>上钟提醒
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#employee">
+                                <i class="fas fa-user-tie me-2"></i>员工管理
+                            </a>
+                        </li>
+                        <li class="nav-item mt-5">
+                            <a class="nav-link" href="/logout">
+                                <i class="fas fa-sign-out-alt me-2"></i>退出登录
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+
+            <!-- 主要内容区域 -->
+            <main class="col-md-10 ms-sm-auto px-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">大堂经理工作台</h1>
+                    <div class="btn-toolbar mb-2 mb-md-0">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary">导出数据</button>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle">
+                            <i class="fas fa-calendar"></i>
+                            今日
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 数据卡片 -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card dashboard-card bg-primary text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">今日上钟</h5>
+                                <h2 class="card-text">48</h2>
+                                <p class="mb-0"><i class="fas fa-arrow-up"></i> 较昨日增长 5%</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card dashboard-card bg-success text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">在岗技工</h5>
+                                <h2 class="card-text">18</h2>
+                                <p class="mb-0"><i class="fas fa-check"></i> 满足需求</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card dashboard-card bg-warning text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">待上钟提醒</h5>
+                                <h2 class="card-text">5</h2>
+                                <p class="mb-0"><i class="fas fa-clock"></i> 需要通知</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card dashboard-card bg-info text-white">
+                            <div class="card-body">
+                                <h5 class="card-title">今日营业额</h5>
+                                <h2 class="card-text">¥9,580</h2>
+                                <p class="mb-0"><i class="fas fa-chart-line"></i> 正常水平</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 技工排班表 -->
+                <div class="card dashboard-card mb-4">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="card-title">技工排班表</h5>
+                            <button class="btn btn-primary btn-sm">
+                                <i class="fas fa-plus"></i> 新增排班
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>技工姓名</th>
+                                        <th>上午班次</th>
+                                        <th>下午班次</th>
+                                        <th>晚上班次</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>张三</td>
+                                        <td>08:00-12:00</td>
+                                        <td>-</td>
+                                        <td>18:00-22:00</td>
+                                        <td><span class="badge bg-success">已签到</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">调整</button>
+                                            <button class="btn btn-sm btn-outline-danger">请假</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>李四</td>
+                                        <td>-</td>
+                                        <td>13:00-17:00</td>
+                                        <td>18:00-22:00</td>
+                                        <td><span class="badge bg-warning">未签到</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">调整</button>
+                                            <button class="btn btn-sm btn-outline-danger">请假</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>王五</td>
+                                        <td>08:00-12:00</td>
+                                        <td>13:00-17:00</td>
+                                        <td>-</td>
+                                        <td><span class="badge bg-success">已签到</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">调整</button>
+                                            <button class="btn btn-sm btn-outline-danger">请假</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 上钟提醒 -->
+                <div class="card dashboard-card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">上钟提醒</h5>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>时间</th>
+                                        <th>房间号</th>
+                                        <th>客户姓名</th>
+                                        <th>服务项目</th>
+                                        <th>技师</th>
+                                        <th>状态</th>
+                                        <th>操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>10:30</td>
+                                        <td>A-108</td>
+                                        <td>赵先生</td>
+                                        <td>足疗按摩</td>
+                                        <td>张三</td>
+                                        <td><span class="badge bg-warning">待上钟</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success">已通知</button>
+                                            <button class="btn btn-sm btn-danger">延迟</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>11:00</td>
+                                        <td>B-205</td>
+                                        <td>钱女士</td>
+                                        <td>全身按摩</td>
+                                        <td>李四</td>
+                                        <td><span class="badge bg-warning">待上钟</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success">已通知</button>
+                                            <button class="btn btn-sm btn-danger">延迟</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>11:30</td>
+                                        <td>C-302</td>
+                                        <td>孙先生</td>
+                                        <td>精油按摩</td>
+                                        <td>王五</td>
+                                        <td><span class="badge bg-warning">待上钟</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-success">已通知</button>
+                                            <button class="btn btn-sm btn-danger">延迟</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 绩效统计 -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="card dashboard-card">
+                            <div class="card-body">
+                                <h5 class="card-title">技工绩效趋势</h5>
+                                <div class="chart-container">
+                                    <canvas id="performanceChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card dashboard-card">
+                            <div class="card-body">
+                                <h5 class="card-title">服务类型分布</h5>
+                                <div class="chart-container">
+                                    <canvas id="serviceChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // 绩效趋势图表
+        const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(performanceCtx, {
+            type: 'line',
+            data: {
+                labels: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+                datasets: [{
+                    label: '上钟数量',
+                    data: [42, 38, 45, 50, 55, 60, 48],
+                    borderColor: '#0d6efd',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+
+        // 服务类型分布图表
+        const serviceCtx = document.getElementById('serviceChart').getContext('2d');
+        new Chart(serviceCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['足疗', '全身按摩', '精油按摩', '其他'],
+                datasets: [{
+                    data: [40, 30, 20, 10],
+                    backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#6c757d']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+
+        // 侧边栏导航功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const navLinks = document.querySelectorAll('.sidebar .nav-link');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (!this.getAttribute('href').startsWith('/')) {
+                        e.preventDefault();
+                        
+                        // 移除所有active类
+                        navLinks.forEach(l => l.classList.remove('active'));
+                        
+                        // 给当前点击的链接添加active类
+                        this.classList.add('active');
+                        
+                        // 获取目标内容区域的ID
+                        const targetId = this.getAttribute('href');
+                        
+                        // 如果是锚点链接，滚动到目标位置
+                        if (targetId.startsWith('#')) {
+                            const targetElement = document.querySelector(targetId);
+                            if (targetElement) {
+                                targetElement.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
